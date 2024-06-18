@@ -7,6 +7,7 @@ import (
 
 	"github.com/tsukinoko-kun/zzh/internal/config"
 	"golang.org/x/crypto/ssh"
+	"golang.org/x/term"
 )
 
 func Interactive(config *config.Config) error {
@@ -32,6 +33,22 @@ func Interactive(config *config.Config) error {
 	session.Stdout = os.Stdout
 	session.Stderr = os.Stderr
 	session.Stdin = os.Stdin
+
+	modes := ssh.TerminalModes{
+		ssh.ECHO:          0,
+		ssh.TTY_OP_ISPEED: 14400, // input speed = 14.4kbaud
+		ssh.TTY_OP_OSPEED: 14400, // output speed = 14.4kbaud
+	}
+
+	fd := int(os.Stdin.Fd())
+	width, height, err := term.GetSize(fd)
+	if err != nil {
+		width = 80
+		height = 80
+	}
+	if err := session.RequestPty("xterm", height, width, modes); err != nil {
+		return fmt.Errorf("request for pseudo terminal failed: %w", err)
+	}
 
 	if err := session.Shell(); err != nil {
 		return errors.Join(errors.New("failed to start shell"), err)

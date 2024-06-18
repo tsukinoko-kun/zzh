@@ -6,6 +6,7 @@ require (
 	github.com/charmbracelet/huh v0.4.2
 	github.com/spf13/cobra v1.8.1
 	golang.org/x/crypto v0.23.0
+	golang.org/x/term v0.20.0
 	google.golang.org/protobuf v1.34.2
 )
 
